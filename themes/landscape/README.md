@@ -1,112 +1,72 @@
-# Landscape
+## Introduction
 
-A brand new default theme for [Hexo].
+This is a simple pipeline example for a .NET Core application, showing just
+how easy it is to get up and running with .NET development using GitLab.
 
-- [Preview](http://hexo.io/hexo-theme-landscape/)
+# Reference links
 
-## Installation
+- [GitLab CI Documentation](https://docs.gitlab.com/ee/ci/)
+- [.NET Hello World tutorial](https://dotnet.microsoft.com/learn/dotnet/hello-world-tutorial/)
 
-### Install
+If you're new to .NET you'll want to check out the tutorial, but if you're
+already a seasoned developer considering building your own .NET app with GitLab,
+this should all look very familiar.
 
-```bash
-$ git clone https://github.com/hexojs/hexo-theme-landscape.git themes/landscape
-```
+## What's contained in this project
 
-**Landscape requires Hexo 2.4 and above.** If you would like to enable the RSS, the [hexo-generate-feed] plugin is also required.
+The root of the repository contains the out of the `dotnet new console` command,
+which generates a new console application that just prints out "Hello, World."
+It's a simple example, but great for demonstrating how easy GitLab CI is to
+use with .NET. Check out the `Program.cs` and `dotnetcore.csproj` files to
+see how these work.
 
-### Enable
+In addition to the .NET Core content, there is a ready-to-go `.gitignore` file
+sourced from the the .NET Core [.gitignore](https://github.com/dotnet/core/blob/master/.gitignore). This
+will help keep your repository clean of build files and other configuration.
 
-Modify `theme` setting in `_config.yml` to `landscape`.
+Finally, the `.gitlab-ci.yml` contains the configuration needed for GitLab
+to build your code. Let's take a look, section by section.
 
-### Update
-
-```bash
-cd themes/landscape
-git pull
-```
-
-## Configuration
-
-```yml
-# Header
-menu:
-  Home: /
-  Archives: /archives
-rss: /atom.xml
-
-# Content
-excerpt_link: Read More
-fancybox: true
-
-# Sidebar
-sidebar: right
-widgets:
-- category
-- tag
-- tagcloud
-- archives
-- recent_posts
-
-# Miscellaneous
-google_analytics:
-favicon: /favicon.png
-twitter:
-google_plus:
-```
-
-- **menu** - Navigation menu
-- **rss** - RSS link
-- **excerpt_link** - "Read More" link at the bottom of excerpted articles. `false` to hide the link.
-- **fancybox** - Enable [Fancybox]
-- **sidebar** - Sidebar style. You can choose `left`, `right`, `bottom` or `false`.
-- **widgets** - Widgets displaying in sidebar
-- **google_analytics** - Google Analytics ID
-- **favicon** - Favicon path
-- **twitter** - Twiiter ID
-- **google_plus** - Google+ ID
-
-## Features
-
-### Fancybox
-
-Landscape uses [Fancybox] to showcase your photos. You can use Markdown syntax or fancybox tag plugin to add your photos.
+First, we note that we want to use the official Microsoft .NET SDK image
+to build our project.
 
 ```
-![img caption](img url)
-
-{% fancybox img_url [img_thumbnail] [img_caption] %}
+image: microsoft/dotnet:latest
 ```
 
-### Sidebar
+We're defining two stages here: `build`, and `test`. As your project grows
+in complexity you can add more of these.
 
-You can put your sidebar in left side, right side or bottom of your site by editing `sidebar` setting.
+```
+stages:
+    - build
+    - test
+```
 
-Landscape provides 5 built-in widgets:
+Next, we define our build job which simply runs the `dotnet build` command and
+identifies the `bin` folder as the output directory. Anything in the `bin` folder
+will be automatically handed off to future stages, and is also downloadable through
+the web UI.
 
-- category
-- tag
-- tagcloud
-- archives
-- recent_posts
+```
+build:
+    stage: build
+    script:
+        - "dotnet build"
+    artifacts:
+      paths:
+        - bin/
+```
 
-All of them are enabled by default. You can edit them in `widget` setting.
+Similar to the build step, we get our test output simply by running `dotnet test`.
 
-## Development
+```
+test:
+    stage: test
+    script: 
+        - "dotnet test"
+```
 
-### Requirements
-
-- [Grunt] 0.4+
-- Hexo 2.4+
-
-### Grunt tasks
-
-- **default** - Download [Fancybox] and [Font Awesome].
-- **fontawesome** - Only download [Font Awesome].
-- **fancybox** - Only download [Fancybox].
-- **clean** - Clean temporarily files and downloaded files.
-
-[hexo]: https://hexo.io/
-[fancybox]: http://fancyapps.com/fancybox/
-[font awesome]: http://fontawesome.io/
-[grunt]: http://gruntjs.com/
-[hexo-generate-feed]: https://github.com/hexojs/hexo-generator-feed
+This should be enough to get you started. There are many, many powerful options 
+for your `.gitlab-ci.yml`. You can read about them in our documentation 
+[here](https://docs.gitlab.com/ee/ci/yaml/).
